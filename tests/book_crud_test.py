@@ -1,10 +1,11 @@
 import json
-from . import app, client, cache, create_token_int, create_token_non, create_token_for_book
+from . import app, client, cache, create_token_int, create_token_non, create_token_for_book, create_token_for_book_2
 
 class TestBookCrud():
 
     temp_id = 0
 
+    # 1 test mendapatkan list buku pribadi
     def test_book_list(self, client):
       token = create_token_for_book()
       res = client.get('/bacaan', headers={'Authorization' : "Bearer "+token})
@@ -13,16 +14,19 @@ class TestBookCrud():
       
     def test_book_list_invalid_token(self, client):
       token = create_token_for_book()
-      res = client.get('/bacaan', headers={'Authorization' : "Bearer jasa"})
+      res = client.get('/bacaan', headers={'Authorization' : "Bearer ngasal"})
 
       assert res.status_code == 500
-    
+
+    # 2 test mendapatkan list seluruh buku
     def test_book_list_publik(self, client):
-      token = create_token_for_book()
+      
       res = client.get('/bacaan/publik')
 
       assert res.status_code == 200
 
+
+    # 3 test post buku baru
     def test_book_post(self,client):
       token = create_token_for_book()
       inputan = {
@@ -41,7 +45,7 @@ class TestBookCrud():
       TestBookCrud.temp_id = res_json['id']
       assert res.status_code == 200
     
-    def test_book_invalid_post(self,client):
+    def test_book_post_unfilled_required(self,client):
       token=create_token_for_book()
       inputan = {
             "judul" : "userdummy"
@@ -50,12 +54,13 @@ class TestBookCrud():
 
       assert res.status_code == 500
     
+    # 4 test ubah data buku
     def test_book_put(self, client):
       token=create_token_for_book()
       inputan = {
-            "judul" : "Conan",
-            "pengarang" : "Aoyama Gosho",
-            "penerbit" : "Gramedia",
+            "judul" : "ganti",
+            "pengarang" : "ganti",
+            "penerbit" : "ganti",
             "harga" : 50000,
             "stok" : 2,
             "url_picture" : "https://upload.wikimedia.org/wikipedia/commons/7/77/Sherlock_Holmes_%26_Watson_-_The_Greek_Interpreter_-_Sidney_Paget.jpg",
@@ -65,8 +70,8 @@ class TestBookCrud():
 
       assert res.status_code == 200
     
-    def test_book_invalid_put(self, client):
-      token=create_token_int()
+    def test_book_put_invalid_user(self, client):
+      token=create_token_for_book_2()
       inputan = {
             "judul" : "Conan",
             "pengarang" : "Aoyama Gosho",
@@ -79,18 +84,41 @@ class TestBookCrud():
       res = client.put('/bacaan/'+str(TestBookCrud.temp_id), data=json.dumps(inputan), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
       assert res.status_code == 403
+
+    def test_book_put_invalid_id(self, client):
+      token=create_token_for_book_2()
+      inputan = {
+            "judul" : "Conan",
+            "pengarang" : "Aoyama Gosho",
+            "penerbit" : "Gramedia",
+            "harga" : 50000,
+            "stok" : 2,
+            "url_picture" : "https://upload.wikimedia.org/wikipedia/commons/7/77/Sherlock_Holmes_%26_Watson_-_The_Greek_Interpreter_-_Sidney_Paget.jpg",
+            "deskripsi" : "ngasal"
+        }
+      res = client.put('/bacaan/id', data=json.dumps(inputan), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
+
+      assert res.status_code == 404  
     
+    # 5 test mendapatkan satu buku spesifik 
     def test_get_one(self,client):
-      token=create_token_for_book()
-      res = client.get('/bacaan/'+str(TestBookCrud.temp_id), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
+      res = client.get('/bacaan/'+str(TestBookCrud.temp_id), content_type='application/json')
 
       assert res.status_code == 200
-    def test_get_one_invalid(self,client):
+
+    def test_get_one_invalid_id(self,client):
       token=create_token_for_book()
       res = client.get('/bacaan/0', content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
       assert res.status_code == 404
-      
+
+    # 6 test menghapus buku
+
+    def test_book_delete_invalid_user(self,client):
+        token=create_token_for_book_2()
+        res = client.delete('/bacaan/'+str(TestBookCrud.temp_id), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
+
+        assert res.status_code == 403
 
     def test_book_delete(self,client):
         token=create_token_for_book()
@@ -98,7 +126,7 @@ class TestBookCrud():
 
         assert res.status_code == 200
 
-    def test_book_invalid_delete(self,client):
+    def test_book_delete_invalid_id(self,client):
         token=create_token_int()
         res = client.delete('/bacaan/'+str(TestBookCrud.temp_id), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 

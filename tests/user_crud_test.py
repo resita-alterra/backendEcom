@@ -1,20 +1,27 @@
 import json
-from . import app, client, cache, create_token_int, create_token_non
+from . import app, client, cache, create_token_int, create_token_non, create_token_for_book
 
 class TestUserCrud():
 
     temp_client = 0
 
+    # 1 test_user_list untuk memastikan hanya admin yang bisa mengakses seluruh data user
     def test_user_list(self, client):
         token = create_token_int()
-        res = client.get('/user', headers={'Authorization': 'Bearer '+ token})
+        res = client.get('/user/admin', headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 200
     
     def test_user_list_invalid_token(self, client):
-        res = client.get('/user', headers={'Authorization': 'Bearer abc'})
+        res = client.get('/user/admin', headers={'Authorization': 'Bearer abc'})
         assert res.status_code == 500
+    
+    def test_user_list_invalid_user(self, client):
+        token = create_token_for_book()
+        res = client.get('/user/admin', headers={'Authorization': 'Bearer ' + token})
+        assert res.status_code == 403
 
+    # 2 test post user baru
     def test_user_post(self,client):
         inputan = {
             "user_name" : "userdummy",
@@ -31,8 +38,8 @@ class TestUserCrud():
         TestUserCrud.temp_client = res_json['id']
         assert res.status_code == 200
     
-    def test_user_duplicate_post(self,client):
-        token=create_token_int()
+    def test_user_post_duplicate(self,client):
+        
         inputan = {
             "user_name" : "userdummy",
             "password" : "fields.Stfdringdfd",
@@ -46,21 +53,33 @@ class TestUserCrud():
 
         assert res.status_code == 500
     
+    def test_user_post_unfilled_required(self,client):
+        inputan = {
+            "user_name" : "userdummy2",
+            "password" : "fields.Stfdringdfd",
+            "rekening" : "fieldsdf.Stringdfds"
+        }
+        res = client.post('/user', data=json.dumps(inputan), content_type='application/json')
+
+        assert res.status_code == 500        
+
+    # 3 test put user dummy
     def test_user_put(self, client):
         token=create_token_non()
         inputan = {
             "password" : "password",
-            "alamat" : "fields.fdsStrifdsng",
-            "hp" : "fields.Strifdngsdf",
-            "email" : "hggf",
+            "alamat" : "ganti",
+            "hp" : "ganti",
+            "email" : "ganti",
             "foto" : "gantiiii",
-            "rekening" : "fieldsdf.Stringdfds"
+            "rekening" : "ganti"
         }
         res = client.put('/user', data=json.dumps(inputan), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 200
     
-    def test_user_invalid_put(self, client):
+    # assert 500 karena user admin(token int) mencoba mengubah data user yang bukan dirinya
+    def test_user_put_invalid_user(self, client):
         token=create_token_int()
         inputan = {
             "password" : "password",
@@ -74,17 +93,25 @@ class TestUserCrud():
 
         assert res.status_code == 500
     
+    # 4 test mendapatkan data pribadi user
     def test_user_get_me(self,client):
         token= create_token_non()
         res = client.get('/user', content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 200
         
-    def test_user_invalid_get_me(self,client):
+    def test_user_get_me_invalid_id(self,client):
         token= create_token_non()
         res = client.get('/user/dsa', content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 500
+
+    # 5 test menghapus user
+    def test_user_delete_invalid_admin(self,client):
+        token=create_token_for_book()
+        res = client.delete('/user/'+str(TestUserCrud.temp_client), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
+
+        assert res.status_code == 403
 
     def test_user_delete(self,client):
         token=create_token_int()
@@ -92,8 +119,9 @@ class TestUserCrud():
 
         assert res.status_code == 200
 
-    def test_book_invalid_delete(self,client):
+    def test_user_delete_invalid_id(self,client):
         token=create_token_int()
         res = client.delete('/user/baka', content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 404
+

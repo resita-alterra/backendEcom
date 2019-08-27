@@ -36,7 +36,8 @@ def internal_required(fn):
 ####################
 # Database
 #############
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://resita:alta123@localhost:3306/project' # //user:password@host/nama_database
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://resita:alta123@localhost:3306/project' # //user:password@host/nama_database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:Altabatch3@project.cwwlyuwat89s.ap-southeast-1.rds.amazonaws.com:3306/project' # //user:password@host/nama_database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
