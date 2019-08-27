@@ -177,7 +177,7 @@ class TransaksiAdmin(Resource):
         if qry is None:
             return { 'status' : 'NOT FOUND'}, 404,{'Content_Type' : 'application/json'}
         
-        if args['status'] != 'terkirim' and qry.status != 'pesan':
+        if args['status'] != 'terkirim' or qry.status != 'pesan':
             return {'Warning' : 'Admin hanya bisa mengubah status dari pesan menjadi terkirim'}, 403
                 
         qry.status = args['status']
