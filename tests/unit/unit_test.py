@@ -3,6 +3,7 @@ from blueprints import db
 from tests import reset_database
 from mock import patch
 from blueprints.api import CurrentWeather
+from .. import client
 
 class TestUnit():
 
@@ -19,4 +20,5 @@ class TestUnit():
     assert CurrentWeather.get() == temp
   
   # def test_get_temp_asli(self):
-    # assert CurrentWeather.get(self).status_code == 200
+    # res = client.get('/bacaan')
+    # assert res.status_code == 200
