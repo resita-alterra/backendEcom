@@ -1,9 +1,10 @@
 import json
-from . import app, client, cache, create_token_int, create_token_non, create_token_for_book, create_token_for_book_2
+from . import app, client, cache, create_token_int, create_token_non, create_token_for_book, create_token_for_book_2, reset_database
 
 class TestBookCrud():
 
     temp_id = 0
+    reset_database()
 
     # 1 test mendapatkan list buku pribadi
     def test_book_list(self, client):
@@ -16,12 +17,17 @@ class TestBookCrud():
       token = create_token_for_book()
       res = client.get('/bacaan', headers={'Authorization' : "Bearer ngasal"})
 
-      assert res.status_code == 500
+      assert res.status_code == 422
 
     # 2 test mendapatkan list seluruh buku
     def test_book_list_publik(self, client):
+
+      data = {
+        "tipe" : "komik",
+        "order" : "harga"
+      }
       
-      res = client.get('/bacaan/publik')
+      res = client.get('/bacaan/publik', query_string=data)
 
       assert res.status_code == 200
 
@@ -50,9 +56,9 @@ class TestBookCrud():
       inputan = {
             "judul" : "userdummy"
         }
-      res = client.post('/bacaan', data=json.dumps(inputan), content_type='application/json')
+      res = client.post('/bacaan', data=json.dumps(inputan), headers={'Authorization' : "Bearer "+token}, content_type='application/json')
 
-      assert res.status_code == 500
+      assert res.status_code == 400
     
     # 4 test ubah data buku
     def test_book_put(self, client):
@@ -62,6 +68,7 @@ class TestBookCrud():
             "pengarang" : "ganti",
             "penerbit" : "ganti",
             "harga" : 50000,
+            "tipe" : "novel",
             "stok" : 2,
             "url_picture" : "https://upload.wikimedia.org/wikipedia/commons/7/77/Sherlock_Holmes_%26_Watson_-_The_Greek_Interpreter_-_Sidney_Paget.jpg",
             "deskripsi" : "gantiiii"
@@ -131,3 +138,18 @@ class TestBookCrud():
         res = client.delete('/bacaan/'+str(TestBookCrud.temp_id), content_type='application/json',headers={'Authorization': 'Bearer '+ token})
 
         assert res.status_code == 404
+    
+    def test_book_option(self,client):
+      res = client.options('/bacaan/2',content_type='application/json')
+
+      assert res.status_code == 200
+    
+    def test_book_personal_option(self,client):
+      res = client.options('/bacaan',content_type='application/json')
+
+      assert res.status_code == 200
+    
+    def test_publik_book_option(self,client):
+      res = client.options('/bacaan/publik',content_type='application/json')
+
+      assert res.status_code == 200

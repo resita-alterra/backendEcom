@@ -12,6 +12,13 @@ api = Api(bp_user)
 
 class UserResource(Resource):
 
+    def is_exist(self,user_name):
+        users = ListUser.query
+        existed_user = [user.user_name for user in users]
+        if user_name in existed_user:
+            return True
+        return False
+
     def __init__(self):
         pass
     def options(self, id=None):
@@ -21,13 +28,20 @@ class UserResource(Resource):
 
         parser.add_argument('user_name',location='json',required = True)
         parser.add_argument('password',location='json',required = True)
-        parser.add_argument('alamat',location='json')
+        parser.add_argument('alamat',location='json', required=True)
         parser.add_argument('rekening',location='json', required = True)
         parser.add_argument('hp',location='json')
         parser.add_argument('email', location='json')
         parser.add_argument('foto', location='json')
 
         args = parser.parse_args()
+        
+        
+        if self.is_exist(args['user_name']):
+            return 500
+
+
+
         data = {
             'user_name':args['user_name'],
             'password':args['password'],

@@ -41,5 +41,5 @@ class DaftarBuku(db.Model):
         self.tipe = data['tipe']
         self.url_picture = data['url_picture']
     
-    def __repr__(self):
-        return '<Buku %r>' % self.id
+    # def __repr__(self):
+        # return '<Buku %r>' % self.id

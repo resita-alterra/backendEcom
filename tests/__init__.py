@@ -1,7 +1,9 @@
 import pytest, json, logging
 from flask import Flask, request
 
-from blueprints import app
+from blueprints import app, db
+from blueprints.users.model import ListUser
+from blueprints.buku.model import DaftarBuku
 from app import cache
 
 def call_client(request):
@@ -9,7 +11,6 @@ def call_client(request):
     return client
 
 @pytest.fixture
-
 def client(request):
     return call_client(request)
 # buat admin
@@ -114,3 +115,58 @@ def create_token_for_book_2():
         return res_json['token']
     else:
         return token
+
+
+def reset_database():
+    db.drop_all()
+    db.create_all()
+    admin = {
+            'user_name': 'admin',
+            'password': 'password',
+            'alamat':'jahgad',
+            'rekening':'kjashad',
+            'hp':'jdh', 
+            'email':'inga',
+            'foto':'adhag'
+        }
+    
+    user_1 = {
+            'user_name': 'alzimnae',
+            'password': 'password',
+            'alamat':'jahgad',
+            'rekening':'kjashad',
+            'hp':'jdh', 
+            'email':'inga',
+            'foto':'adhag'
+    }
+
+    user_2 = {
+            'user_name': 'tabipo',
+            'password': 'password',
+            'alamat':'jahgad',
+            'rekening':'kjashad',
+            'hp':'jdh', 
+            'email':'inga',
+            'foto':'adhag'
+    }
+    buku = {
+            "user_id" : 2,
+            "user_name" : "alzimnae",
+            "judul" : "Conan",
+            "pengarang" : "Aoyama Gosho",
+            "penerbit" : "Gramedia",
+            "harga" : 50000,
+            "stok" : 100,
+            "url_picture" : "https://upload.wikimedia.org/wikipedia/commons/7/77/Sherlock_Holmes_%26_Watson_-_The_Greek_Interpreter_-_Sidney_Paget.jpg",
+            "deskripsi" : "ngasal",
+            "tipe" : "komik"
+        }
+    admin = ListUser(admin)
+    user_1 = ListUser(user_1)
+    user_2 = ListUser(user_2)
+    buku = DaftarBuku(buku)
+    db.session.add(buku)
+    db.session.add(admin)
+    db.session.add(user_1)
+    db.session.add(user_2)
+    db.session.commit()

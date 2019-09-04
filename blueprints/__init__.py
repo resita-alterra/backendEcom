@@ -1,5 +1,7 @@
 from flask import Flask, request
 import json
+import os
+import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
@@ -36,9 +38,20 @@ def internal_required(fn):
 ####################
 # Database
 #############
+
+try :
+    env = os.environ.get('FLASK_ENV', 'development')
+    if env == 'testing':
+        app.config.from_object(config.TestingConfig)
+    else:
+        app.config.from_object(config.DevelopmentConfig)
+
+except Exception as e :
+    raise e
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://resita:alta123@localhost:3306/project' # //user:password@host/nama_database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:Altabatch3@project.cwwlyuwat89s.ap-southeast-1.rds.amazonaws.com:3306/project' # //user:password@host/nama_database
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:Altabatch3@project.cwwlyuwat89s.ap-southeast-1.rds.amazonaws.com:3306/project' # //user:password@host/nama_database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 
 db = SQLAlchemy(app)
@@ -74,9 +87,11 @@ from blueprints.auth import bp_auth
 from blueprints.buku.resources import bp_bacaan
 from blueprints.transaksi.resources import bp_transaksi
 from blueprints.auth import bp_auth
+from blueprints.api import bp_weather
 
 app.register_blueprint(bp_user,url_prefix='/user')
 app.register_blueprint(bp_auth,url_prefix='/login')
 app.register_blueprint(bp_bacaan, url_prefix='/bacaan')
 app.register_blueprint(bp_transaksi, url_prefix='/transaksi')
+app.register_blueprint(bp_weather, url_prefix='/weather')
 db.create_all()

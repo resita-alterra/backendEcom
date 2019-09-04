@@ -32,5 +32,5 @@ class ListUser(db.Model):
         self.email = data['email']
         self.foto = data['foto']
 
-    def __repr__(self):
-        return '<Person %r>' % self.id    
+    # def __repr__(self):
+        # return '<Person %r>' % self.id    

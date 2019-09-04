@@ -52,5 +52,5 @@ class DaftarTransaksi(db.Model):
         self.kontak_penjual = data['kontak_penjual']
         self.status = data['status']
     
-    def __repr__(self):
-        return '<Transaksi %r>' % self.id
+    # def __repr__(self):
+        # return '<Transaksi %r>' % self.id
