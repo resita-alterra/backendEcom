@@ -6,7 +6,7 @@ import datetime
 class ListUser(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime(timezone=True), default=db.func.now())
     user_name = db.Column(db.String(16), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
     alamat = db.Column(db.String(225), nullable=False)
